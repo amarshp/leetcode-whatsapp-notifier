@@ -57,7 +57,7 @@ def calculate_score(stats):
         stats.get('hard', 0) * 4
     )
 
-# === Compare and build message ===
+# === Enhanced comparison message with detailed stats ===
 def get_comparison_message(u1, u2):
     stats1 = get_user_stats(u1)
     stats2 = get_user_stats(u2)
@@ -68,16 +68,35 @@ def get_comparison_message(u1, u2):
     name1 = users[u1]
     name2 = users[u2]
 
+    # Build the main comparison message
     if score1 > score2:
         diff = score1 - score2
-        msg = f"{name1} is beating {name2} by {diff} points today 💪"
+        main_msg = f"{name1} is beating {name2} by {diff} points today 🔥"
     elif score2 > score1:
         diff = score2 - score1
-        msg = f"{name2} is beating {name1} by {diff} points today 🔥"
+        main_msg = f"{name2} is beating {name1} by {diff} points today 🔥"
     else:
-        msg = f"{name1} and {name2} are tied at {score1} points 🟰"
+        main_msg = f"{name1} and {name2} are tied at {score1} points 🤝"
 
-    return msg
+    # Build detailed stats for both users
+    def format_user_stats(name, stats, score):
+        easy = stats.get('easy', 0)
+        medium = stats.get('medium', 0)
+        hard = stats.get('hard', 0)
+        return f"{name}: {score} points ({easy} easy, {medium} medium, {hard} hard)"
+
+    user1_details = format_user_stats(name1, stats1, score1)
+    user2_details = format_user_stats(name2, stats2, score2)
+
+    # Combine everything into the final message
+    full_message = f"""✅ Daily LeetCode Update:
+{main_msg}
+
+📊 Current Scores:
+{user1_details}
+{user2_details}"""
+
+    return full_message
 
 # === Send WhatsApp message ===
 def send_whatsapp_message(body):
@@ -93,7 +112,9 @@ def send_whatsapp_message(body):
 if __name__ == "__main__":
     try:
         message = get_comparison_message("FipPBdPicZ", "codezilla1305")
-        print("Message to send:", message)
+        print("Message to send:")
+        print(message)
+        print("\n" + "="*50 + "\n")
         send_whatsapp_message(message)
     except Exception as e:
         print("Error:", e)
